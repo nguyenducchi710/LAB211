@@ -34,6 +34,7 @@ public class BookList extends ArrayList<Book> implements I_Book, Serializable {
 
     @Override
     public ArrayList<Book> createBook(ArrayList<Publisher> publisher) {
+        PublisherList pub = new PublisherList();
         String pubID;
         String bookID, bookName, status;
         int quantity;
@@ -47,10 +48,8 @@ public class BookList extends ArrayList<Book> implements I_Book, Serializable {
                 check = true;
             }
         } while (check);
-        System.out.println("Publisher's Data:");
-        publisher.forEach((o) -> {
-            System.out.println(o.toString() + "\n");
-        });
+        System.out.println("Publisher's Data: ");
+        publisher = pub.printPubFile();
         boolean checkId = true;
         //Check Publisher ID is exist or not?
         do {
@@ -196,16 +195,15 @@ public class BookList extends ArrayList<Book> implements I_Book, Serializable {
 
     @Override
     public ArrayList<Book> printBookFile(ArrayList<Publisher> publisher) {
-        PublisherList pub = new PublisherList();
         File file = new File(Book_File);
         if (!file.canWrite() || !file.exists()) {
             System.out.println("Error to print from File.");
             return null;
         }
         try {
-            FileInputStream fis = new FileInputStream(file);
+            FileInputStream fis = new FileInputStream(Book_File);
             ObjectInputStream ois = new ObjectInputStream(fis);
-            BookList temp = (BookList) ois.readObject();
+            ArrayList<Book> temp = (ArrayList<Book>) ois.readObject();
             //Sort by Book's Quantity descending
             Collections.sort(temp, new Comparator<Book>() {
                 @Override
@@ -213,7 +211,7 @@ public class BookList extends ArrayList<Book> implements I_Book, Serializable {
                     return o2.getQuantity() - o1.getQuantity();
                 }
             });
-            Controller.displayBook(temp, pub);
+            Controller.displayBook(temp, publisher);
             this.addAll(temp);
         } catch (FileNotFoundException ex) {
             System.out.println("Err: " + ex.getMessage());

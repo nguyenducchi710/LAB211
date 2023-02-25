@@ -55,7 +55,7 @@ public class BookStoreManagement {
                                         break;
                                 case 3: pub.savePubFile();
                                         break;
-                                case 4: pub.printPubFile();
+                                case 4: pubArrl = pub.printPubFile();
                                         break;
                                 case 5: System.out.println("Exitting");
                                         break;

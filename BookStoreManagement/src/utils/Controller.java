@@ -156,15 +156,13 @@ public class Controller {
         System.out.println(repeat("_",70));
     }
     
-     public static void displayBook(BookList temp, PublisherList pub) {
-        ArrayList<Publisher> publishers = pub;
-        ArrayList<Book> books = temp;
+     public static void displayBook(ArrayList<Book> temp, ArrayList<Publisher> pub) {
         System.out.println(repeat("_",127));
         System.out.format("| %-10s | %-25s | %-10s | %-15s | %-10s | %-25s | %-10s |\n", "Book ID", "Book Name", "Price", "Quantity", "Subtotal", "Publisher", "Status");
         System.out.println(repeat("_",127));
-        for (Book b : books) {
-            for (Publisher p : publishers) {
-                if (p.getPubID().equals(b.getPubID())) {
+        for (Book b : temp) {
+            for (Publisher p : pub) {
+                if (p.getPubID().contains(b.getPubID())) {
                     int subtotal = (int) (b.getQuantity() * b.getPrice());
                     System.out.format("| %-10s | %-25s | %-10s | %-15s | %-10s | %-25s| %-10s |\n", b.getBookID(), b.getBookName(), b.getPrice(), b.getQuantity(), subtotal, p.getPubName(), b.getStatus());
                 }
