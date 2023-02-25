@@ -8,7 +8,7 @@ package controller;
 import dto.I_Menu;
 import java.util.ArrayList;
 import java.util.Scanner;
-import utils.Utils;
+import utils.Controller;
 
 /**
  *
@@ -31,7 +31,7 @@ public class Menu extends ArrayList<String> implements I_Menu {
     @Override
     public int getChoice(int min, int max) {
         int result = -1;
-        result = Utils.getInt("Input your choice:", min, max);
+        result = Controller.getInt("Input your choice:", min, max);
         return result;
     }
 

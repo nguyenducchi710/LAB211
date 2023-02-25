@@ -52,7 +52,7 @@ public class Publisher implements Serializable{
 
     @Override
     public String toString() {
-        return "Publisher{" + "Publisher ID=" + pubID + ", Publisher Name=" + pubName + ", PhoneNumber=" + phoneNumber + '}';
+        return "Publisher {" + "Publisher's ID : " + pubID + ", Publisher's Name : " + pubName + ", PhoneNumber : " + phoneNumber + '}';
     }
     
     

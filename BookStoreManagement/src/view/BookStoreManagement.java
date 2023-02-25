@@ -27,7 +27,6 @@ public class BookStoreManagement {
         I_Book book = new BookList();
         I_Publisher pub = new PublisherList();
         ArrayList<Publisher> pubArrl = new ArrayList<>();
-        ArrayList<Book> bookList = new ArrayList<>();
         mainmenu.addItem("BOOK_STRORE_MANAGEMENT");
         mainmenu.addItem("1. Publisher Management");
         mainmenu.addItem("2. Book Management");
@@ -58,7 +57,7 @@ public class BookStoreManagement {
                                         break;
                                 case 4: pub.printPubFile();
                                         break;
-                                case 5: pubcheck = pubmenu.confirmYesNo("Are you sure?(Y/N) ");
+                                case 5: System.out.println("Exitting");
                                         break;
                             }
                         }while(pubchoice >= 1 && pubchoice < 5 && pubcheck);
@@ -77,19 +76,19 @@ public class BookStoreManagement {
                             bookmenu.showMenu();
                             bookchoice = bookmenu.getChoice(1, 7);
                             switch(bookchoice){
-                                case 1: bookList = book.createBook(pubArrl);
+                                case 1: book.createBook(pubArrl);
                                         break;
                                 case 2: book.searchBook();
                                         break;
-                                case 3: book.updateBook(bookList);
+                                case 3: book.updateBook();
                                         break;
                                 case 4: book.delBook();
                                         break;
                                 case 5: book.saveBookFile();
                                         break;
-                                case 6: book.printBookFile();
+                                case 6: book.printBookFile(pubArrl);
                                         break;
-                                case 7: bookcheck = bookmenu.confirmYesNo("Are you sure?(Y/N) ");
+                                case 7: System.out.println("Exitting");
                                         break;
                             }
                         }while(bookchoice >= 1 && bookchoice < 7 && bookcheck);;

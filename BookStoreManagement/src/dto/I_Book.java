@@ -14,8 +14,8 @@ import java.util.ArrayList;
 public interface I_Book {
     ArrayList<Book> createBook(ArrayList<Publisher> pub);
     void searchBook();
-    void updateBook(ArrayList<Book> book);
+    void updateBook();
     void delBook();
     void saveBookFile();
-    void printBookFile();
+    ArrayList<Book> printBookFile(ArrayList<Publisher> publisher);
 }

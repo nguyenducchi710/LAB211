@@ -15,6 +15,6 @@ public interface I_Publisher {
     ArrayList<Publisher> createPublisher();
     void delPublisher();
     void savePubFile();
-    void printPubFile();
+    ArrayList<Publisher> printPubFile();
     
 }

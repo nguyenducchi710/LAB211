@@ -17,7 +17,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import utils.Utils;
+import utils.Controller;
 
 /**
  *
@@ -37,7 +37,7 @@ public class PublisherList extends ArrayList<Publisher> implements I_Publisher, 
         boolean check = true;
         System.out.println("Enter the information: ");
         do {
-            ID = Utils.getString("Publisher's ID (Pxxxxx): ");
+            ID = Controller.getString("Publisher's ID (Pxxxxx): ");
             check = this.contains(ID);
             if (!ID.matches("P\\d{5}")) {
                 System.out.println("Invalid format");
@@ -45,13 +45,13 @@ public class PublisherList extends ArrayList<Publisher> implements I_Publisher, 
             }
         }
         while (check);
-        pubName = Utils.getString("Publisher's Name: ", 5, 30);
-        phoneNumber = Utils.getString("Publisher's phone number: ", 10, 12);
+        pubName = Controller.getStringMinMax("Publisher's Name: ", 5, 30);
+        phoneNumber = Controller.getStringMinMax("Publisher's phone number: ", 10, 12);
         Publisher data = new Publisher(ID, pubName, phoneNumber);
         this.add(data);
         System.out.println("Success");
         this.forEach((o) -> {System.out.println(o.toString() + "\n");});
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
         if(!ask) createPublisher();
         return this;
     }
@@ -59,7 +59,7 @@ public class PublisherList extends ArrayList<Publisher> implements I_Publisher, 
     @Override 
     public void delPublisher(){
         this.forEach((o) -> {System.out.println(o.toString() + "\n");});
-        String ID = Utils.getString("Choice the ID you want to delete: ");
+        String ID = Controller.getString("Choice the ID you want to delete: ");
         int index = -1;
         for (int i = 0; i < this.size(); i++) {
             if (this.get(i).getPubID().equals(ID)) {
@@ -73,7 +73,7 @@ public class PublisherList extends ArrayList<Publisher> implements I_Publisher, 
         }
         this.remove(index);
         System.out.println("Success!");  
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
         if(!ask) delPublisher();
     }
     
@@ -85,29 +85,28 @@ public class PublisherList extends ArrayList<Publisher> implements I_Publisher, 
         } catch (IOException e) {
             System.out.println("Error: " + e.getMessage());
         }
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
         if(!ask) savePubFile();
     }
     
     @Override
-    public void printPubFile() {
+    public ArrayList<Publisher> printPubFile() {
         try {
             File file = new File(Pub_File);
             if (!file.exists() || !file.canRead()) {
-                System.out.println("Failed to read file at "+Pub_File);
-                return;
+                System.out.println("Failed to read file at "+Pub_File); return null;
             }
-            FileInputStream fileIn = new FileInputStream(file);
-            ObjectInputStream in = new ObjectInputStream(fileIn);
-            PublisherList temp = (PublisherList) in.readObject();
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            PublisherList temp = (PublisherList) ois.readObject();
             this.addAll(temp);
             Collections.sort(temp, Comparator.comparing(Publisher::getPubName));
-            Utils.display(temp);
-            in.close();
-            fileIn.close();
+            Controller.displayPublisher(temp);
+            ois.close();
+            fis.close();
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error: "+e.getMessage());
         }
-    }  
-    
+        return this;
+    }     
 }

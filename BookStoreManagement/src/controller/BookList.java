@@ -15,34 +15,32 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Scanner;
-import utils.Utils;
+import utils.Controller;
 
 /**
  *
  * @author asus
  */
-public class BookList extends ArrayList<Book> implements I_Book {
-    
+public class BookList extends ArrayList<Book> implements I_Book, Serializable {
+
     transient Scanner sc = new Scanner(System.in);
 
     private static final String Book_File = "src/file/Book.dat";
-    
+
     @Override
     public ArrayList<Book> createBook(ArrayList<Publisher> publisher) {
-        if (publisher.isEmpty()){
-            System.out.println("Empty list. Please input data");
-        }
         String pubID;
         String bookID, bookName, status;
         int quantity;
         double price;
         boolean check = true;
         do {
-            bookID = Utils.getString("Insert Book's ID (Bxxxxx): ");
+            bookID = Controller.getString("Insert Book's ID (Bxxxxx): ");
             check = this.contains(new Book(bookID));
             if (!bookID.matches("B\\d{5}")) {
                 System.out.println("Invalid format!");
@@ -55,23 +53,25 @@ public class BookList extends ArrayList<Book> implements I_Book {
         });
         boolean checkId = true;
         //Check Publisher ID is exist or not?
-        do{
-            pubID = Utils.getString("Enter Publisher's ID: ");
-            for(Publisher id: publisher){
-                if (id.getPubID().equals(pubID)){
+        do {
+            pubID = Controller.getString("Enter Publisher's ID: ");
+            for (Publisher id : publisher) {
+                if (id.getPubID().equals(pubID)) {
                     checkId = true;
                 }
             }
-        }while(!checkId);
-        bookName = Utils.getString("Book's Name: ", 5, 30);
-        price = Utils.getDouble("Book's Price: ", 0);
-        quantity = Utils.getInt("Quantity: ", 0);
-        status = Utils.getStatus("Book's Status: ");
+        } while (!checkId);
+        bookName = Controller.getStringMinMax("Book's Name: ", 5, 30);
+        price = Controller.getDouble("Book's Price: ", 0);
+        quantity = Controller.getInt("Quantity: ", 0);
+        status = Controller.getBookStatus("Book's Status: ");
         Book newData = new Book(bookID, bookName, price, quantity, status, pubID);
         this.add(newData);
-        System.out.println("Success");
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) createBook(publisher);
+        System.out.println("Add Success");
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
+        if (!ask) {
+            createBook(publisher);
+        }
         return this;
     }
 
@@ -79,132 +79,158 @@ public class BookList extends ArrayList<Book> implements I_Book {
     public void searchBook() {
         //Tao searchBook arraylist la de lay ket qua cua trong ArrayList book
         ArrayList<Book> searchBook = new ArrayList<>();
-        String search = Utils.getString("Enter the Publisher's ID (or part of Book’s Name) to find a Book: ");
-        if(this.isEmpty()) {
-            System.out.println("Have no any Book"); return;
+        String search = Controller.getString("Enter the Publisher's ID (or part of Book’s Name) to find a Book: ");
+        if (this.isEmpty()) {
+            System.out.println("Have no any Book");
+            return;
         }
         //Quet de tim arraylist book chua Publisher ID do
-        for(Book b : this) {
-            if(b.getPubID().equals(search) || b.getBookName().contains(search)) {
+        for (Book b : this) {
+            if (b.getPubID().equals(search) || b.getBookName().contains(search)) {
                 searchBook.add(b);
             }
         }
         Collections.sort(searchBook, (b1, b2) -> b1.getBookName().compareToIgnoreCase(b2.getBookName()));
         System.out.println("Search results:");
-        Utils.printBookList(searchBook);
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) searchBook();
+        Controller.printBookList(searchBook);
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
+        if (!ask) {
+            searchBook();
+        }
     }
 
     @Override
-    public void updateBook(ArrayList<Book> book) {
-        int index = 0;
-        String oldName, newName;
-        double oldPrice, newPrice;
-        int oldQuantity, newQuantity;
-        String oldStatus, newStatus;
-        int statusNumber;
-        this.forEach((o) -> {
-            System.out.println(o.toString() + "\n");
-        });
-        String bookID = Utils.getString(" Enter Book's ID you want to update: ", "B\\d{5}");
-        if (!this.contains(new Book(bookID))) {
-            System.out.println("The Book does not exist.");
+    public void updateBook() {
+        if (isEmpty()) {
+            System.out.println("Empty");
             return;
-        }       
-        index = this.indexOf(new Book(bookID));
-        do {
-            oldName = ((Book) this.get(index)).getBookName();
-            newName = Utils.updateName(" Input new name: ", oldName);
-        } while (newName.length() < 5 && newName.length() > 30);
-        ((Book) this.get(index)).setBookName(newName);
-        oldPrice = ((Book) this.get(index)).getPrice();
-        newPrice = Utils.updatePrice(" Input new price: ", oldPrice);
-        ((Book) this.get(index)).setPrice(newPrice);
-        oldQuantity = ((Book) this.get(index)).getQuantity();
-        newQuantity = Utils.updateQuantity(" Input new quantity: ", oldQuantity);
-        ((Book) this.get(index)).setQuantity(newQuantity);
-        oldStatus = ((Book) this.get(index)).getStatus();
-        if (oldStatus.equals("Available")) {
-            statusNumber = 1;
-        } else {
-            statusNumber = 0;
         }
-        newStatus = Utils.updateStatus(" Input new status: ", statusNumber);
-        ((Book) this.get(index)).setStatus(newStatus);
-        String publisherID = ((Book) this.get(index)).getPubID();
-        Book newData = new Book(bookID, newName, newPrice, newQuantity, newStatus, publisherID);
-        this.add(newData);
-        System.out.println("Success");
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) updateBook(book);
+        printBook();
+        String bookID;
+        boolean check = true;
+        bookID = Controller.getString("Choice the ID you want to update: ");
+        int index = -1;
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).getBookID().equals(bookID)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            System.out.println("Book does not exist");
+            return;
+        }
+        //Update Book's Name
+        String bookName = this.get(index).getBookName();
+        String newName = Controller.getString("Enter new Book's name: ");
+        if (newName == null) {
+            newName = bookName;
+        } else if (newName.length() < 5 || newName.length() > 30) {
+            return;
+        }
+        this.get(index).setBookName(newName);
+        //Update Book's Price
+        Double priceBook = this.get(index).getPrice();
+        Double newPrice = Controller.getDouble("New Book's price: ", 0);
+        if (newPrice == null) {
+            newPrice = priceBook;
+        }
+        this.get(index).setPrice(newPrice);
+        //Update Book's Quantity
+        int bookQuantity = this.get(index).getQuantity();
+        int newQuantity = Controller.getInt("New quantity of Book: ", 0);
+        if (newQuantity == 0) {
+            newQuantity = bookQuantity;
+        }
+        this.get(index).setQuantity(newQuantity);
+        //Update Book's status
+        String bookStatus = this.get(index).getStatus();
+        String newStatus = Controller.getBookStatus("Enter new Book's status: ");
+        if (newStatus == null) {
+            newStatus = bookStatus;
+        }
+        this.get(index).setStatus(newStatus);
+        System.out.println("Update Success");
     }
 
     @Override
     public void delBook() {
-        int test = 0;
         this.forEach((o) -> {
             System.out.println(o.toString() + "\n");
         });
-        String id = Utils.getString(" Enter Book's ID you want to delete: ", "B\\d{5}");
-        if (!this.contains(new Book(id))) {
-            System.out.println("Book's Name does not exist");
+        String bookID = Controller.getString("Choice the ID you want to delete: ");
+        int index = -1;
+        for (int i = 0; i < this.size(); i++) {
+            if (this.get(i).getBookID().equals(bookID)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            System.out.println("Book does not exist");
             return;
         }
-        test = this.indexOf(new Book(id));
-        this.remove(test);
-        if (!this.contains(new Book(id))) {
-            System.out.println("Success");
-        } else {
-            System.out.println("Error");
+        this.remove(index);
+        System.out.println("Delete Success");
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
+        if (!ask) {
+            delBook();
         }
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) delBook();
     }
 
     @Override
     public void saveBookFile() {
-       try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Book_File))) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(Book_File))) {
             oos.writeObject(this);
-            System.out.println("Success");
+            System.out.println("Save Success");
         } catch (FileNotFoundException ex) {
-            System.out.println("Error: "+ex.getMessage());
+            System.out.println("Error: " + ex.getMessage());
         } catch (IOException ex) {
-             System.out.println("Error: "+ex.getMessage());
+            System.out.println("Error: " + ex.getMessage());
         }
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) saveBookFile();
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
+        if (!ask) {
+            saveBookFile();
+        }
     }
-    
+
     @Override
-    public void printBookFile() {
+    public ArrayList<Book> printBookFile(ArrayList<Publisher> publisher) {
         PublisherList pub = new PublisherList();
         File file = new File(Book_File);
         if (!file.canWrite() || !file.exists()) {
             System.out.println("Error to print from File.");
-        } else {
-            try {
-                FileInputStream fis = new FileInputStream(file);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                BookList temp = (BookList) ois.readObject();
-                //Sort by Book's Quantity descending
-                Collections.sort(temp, new Comparator<Book>() {
-                    @Override
-                    public int compare(Book o1, Book o2) {
-                        return o2.getQuantity() - o1.getQuantity();
-                    }
-                });
-                Utils.displayBook(temp, pub);
-                this.addAll(temp);
-            } catch (FileNotFoundException ex) {
-                System.out.println("[!] Failed to print files at " + Book_File + " due to exception " + ex);
-            } catch (IOException | ClassNotFoundException ex) {
-                System.out.println("[!] Failed to print files at " + Book_File + " due to exception " + ex);
-            }
-
+            return null;
         }
-        boolean ask = Utils.askUser("Do you want to return Menu? (Y/N): ");
-        if(!ask) printBookFile();
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            BookList temp = (BookList) ois.readObject();
+            //Sort by Book's Quantity descending
+            Collections.sort(temp, new Comparator<Book>() {
+                @Override
+                public int compare(Book o1, Book o2) {
+                    return o2.getQuantity() - o1.getQuantity();
+                }
+            });
+            Controller.displayBook(temp, pub);
+            this.addAll(temp);
+        } catch (FileNotFoundException ex) {
+            System.out.println("Err: " + ex.getMessage());
+        } catch (IOException | ClassNotFoundException ex) {
+            System.out.println("Err: " + ex);
+        }
+        boolean ask = Controller.askUser("Do you want to return Menu? (Y/N): ");
+        if (!ask) {
+            printBookFile(publisher);
+        }
+        return this;
     }
 
+    private void printBook() {
+        for (Book o : this) {
+            System.out.println(o.toString() + "\n");
+        }
+
+    }
 }
